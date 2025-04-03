@@ -7,27 +7,38 @@ import {
   StyleSheet,
 } from "react-native";
 
-export default function LoginScreen({ navigation }) {
-  const [userId, setUserId] = useState("");
+export default function SignupScreen({ navigation }) {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    if (userId === "admin" && password === "1234") {
-      navigation.navigate("bmi"); // Navigate to BMI screen
-    } else {
-      alert("Invalid User ID or Password");
+  const handleSignup = () => {
+    if (!username || !email || !password) {
+      alert("Please fill all fields");
+      return;
     }
+    // Normally, save user details to a database
+    alert("Signup successful! Please login.");
+    navigation.navigate("Login");
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <Text style={styles.title}>Sign Up</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="Enter User ID"
-        value={userId}
-        onChangeText={setUserId}
+        placeholder="Enter Username"
+        value={username}
+        onChangeText={setUsername}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Enter Email"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
       />
 
       <TextInput
@@ -38,16 +49,15 @@ export default function LoginScreen({ navigation }) {
         secureTextEntry
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
+      <TouchableOpacity style={styles.button} onPress={handleSignup}>
+        <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
 
-      {/* Sign Up Button */}
       <TouchableOpacity
-        style={styles.signupButton}
-        onPress={() => navigation.navigate("Signup")}
+        style={styles.loginButton}
+        onPress={() => navigation.navigate("Login")}
       >
-        <Text style={styles.signupText}>New User? Sign Up</Text>
+        <Text style={styles.loginText}>Already have an account? Login</Text>
       </TouchableOpacity>
     </View>
   );
@@ -75,7 +85,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   button: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#28A745",
     padding: 10,
     width: "80%",
     alignItems: "center",
@@ -86,10 +96,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
   },
-  signupButton: {
+  loginButton: {
     marginTop: 15,
   },
-  signupText: {
+  loginText: {
     color: "#007bff",
     fontSize: 16,
   },

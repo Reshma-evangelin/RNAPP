@@ -81,7 +81,12 @@ export default function BMIScreen({ navigation }) {
     >
       <ScrollView contentContainerStyle={styles.innerContainer}>
         <Text style={styles.title}>BMI Calculator</Text>
-        <TextInput style={styles.input} placeholder="Name" value={name} onChangeText={setName} />
+        <TextInput
+          style={styles.input}
+          placeholder="Name"
+          value={name}
+          onChangeText={setName}
+        />
         <TextInput
           style={styles.input}
           placeholder="Age"
@@ -111,11 +116,22 @@ export default function BMIScreen({ navigation }) {
         {bmi && (
           <View style={styles.resultContainer}>
             <Text style={styles.resultText}>BMI: {bmi}</Text>
-            <Text style={[styles.categoryText, getCategoryStyle(category)]}>{category}</Text>
+            <Text style={[styles.categoryText, getCategoryStyle(category)]}>
+              {category}
+            </Text>
           </View>
         )}
 
-        <TouchableOpacity style={styles.nextButton} onPress={handleStart}>
+        <TouchableOpacity
+          style={styles.nextButton}
+          onPress={() => {
+            if (!bmi) {
+              alert("Please calculate your BMI before proceeding.");
+              return;
+            }
+            handleStart();
+          }}
+        >
           <Text style={styles.buttonText}>Start</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -227,4 +243,3 @@ const styles = StyleSheet.create({
     color: "#FFA500",
   },
 });
-

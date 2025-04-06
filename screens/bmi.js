@@ -176,15 +176,15 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   buttonText: {
-    color: "#fff",
-    fontSize: 18,
+    color: "#aa",
+    fontSize: 22,
   },
   resultContainer: {
     marginTop: 20,
-    padding: 15,
+    padding: 19,
     borderRadius: 10,
     backgroundColor: "#fff",
-    shadowColor: "#000",
+    shadowColor: "#0FF",
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 4,
@@ -194,6 +194,7 @@ const styles = StyleSheet.create({
   resultText: {
     fontSize: 22,
     fontWeight: "bold",
+    color:"f0f"
   },
   categoryText: {
     fontSize: 18,

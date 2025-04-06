@@ -17,14 +17,33 @@ export default function SignupScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const isStrongPassword = (password) => {
+    return password.length >= 6;
+  };
+
   const handleSignup = () => {
     if (!email || !password || !name) {
       Alert.alert("Please enter eall fields");
       return;
     }
 
+    if (!isValidEmail(email)) {
+      Alert.alert("Invalid Email", "Please enter a valid email address.");
+      return;
+    }
+  
+    if (!isStrongPassword(password)) {
+      Alert.alert("Weak Password", "Password should be at least 6 characters.");
+      return;
+    }
+
     createUserWithEmailAndPassword(auth, email, password)
-      .then(() => {
+      .then((userCredential) => {
         const user = userCredential.user;
 
       // Save additional data to Realtime Database

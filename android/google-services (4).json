@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "598438709901",
+    "project_id": "rnapp-5d451",
+    "storage_bucket": "rnapp-5d451.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:598438709901:android:bc7b0e18e85bc7405070c4",
+        "android_client_info": {
+          "package_name": "com.nere.heatstrokeapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "598438709901-cr8l64pt121avf8dt4am8231b43mdskp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtGiGzvfiOXPNh9VIYhxXTNHfQ8fKLvI0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "598438709901-cr8l64pt121avf8dt4am8231b43mdskp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

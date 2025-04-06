@@ -5,59 +5,82 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../FirebaseConfig";
+import { getDatabase, ref, set } from "firebase/database";
+
 
 export default function SignupScreen({ navigation }) {
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSignup = () => {
-    if (!username || !email || !password) {
-      alert("Please fill all fields");
+    if (!email || !password || !name) {
+      Alert.alert("Please enter eall fields");
       return;
     }
-    // Normally, save user details to a database
-    alert("Signup successful! Please login.");
-    navigation.navigate("Login");
+
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(() => {
+        const user = userCredential.user;
+
+      // Save additional data to Realtime Database
+      const db = getDatabase();
+      set(ref(db, "users/" + user.uid), {
+        name: name,
+        email: email,
+      });
+
+        Alert.alert("Account created successfully!");
+        navigation.navigate("loginScreen");
+      })
+      .catch((error) => {
+        Alert.alert("Sign Up Error", error.message);
+      });
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Sign Up</Text>
+      <Text style={styles.title}>Create Account</Text>
+
+      <TextInput
+  style={styles.input}
+  placeholder="Full Name"
+  value={name}
+  onChangeText={setName}
+  placeholderTextColor="#999"
+/>
 
       <TextInput
         style={styles.input}
-        placeholder="Enter Username"
-        value={username}
-        onChangeText={setUsername}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Enter Email"
+        placeholder="Email"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        autoCapitalize="none"
+        placeholderTextColor="#999"
       />
 
       <TextInput
         style={styles.input}
-        placeholder="Enter Password"
+        placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
+        placeholderTextColor="#999"
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleSignup}>
+      <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.loginButton}
-        onPress={() => navigation.navigate("Login")}
-      >
-        <Text style={styles.loginText}>Already have an account? Login</Text>
+      <TouchableOpacity onPress={() => navigation.navigate("loginScreen")}>
+        <Text style={styles.loginText}>
+          Already have an account? <Text style={{ color: "#007bff" }}>Log In</Text>
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -68,39 +91,44 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    paddingHorizontal: 25,
+    backgroundColor: "#f4f6f8",
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 20,
+    color: "#333",
+    marginBottom: 30,
   },
   input: {
-    width: "80%",
-    padding: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
+    width: "100%",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 15,
+    borderRadius: 10,
     backgroundColor: "#fff",
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    elevation: 1,
   },
-  button: {
-    backgroundColor: "#28A745",
-    padding: 10,
-    width: "80%",
+  signupButton: {
+    backgroundColor: "#28a745",
+    width: "100%",
+    paddingVertical: 14,
+    borderRadius: 10,
     alignItems: "center",
-    borderRadius: 5,
     marginTop: 10,
+    elevation: 2,
   },
   buttonText: {
     color: "#fff",
     fontSize: 18,
-  },
-  loginButton: {
-    marginTop: 15,
+    fontWeight: "600",
   },
   loginText: {
-    color: "#007bff",
-    fontSize: 16,
+    fontSize: 14,
+    color: "#333",
+    marginTop: 20,
   },
 });

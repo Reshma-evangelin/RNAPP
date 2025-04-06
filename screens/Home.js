@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import { getDatabase, ref, push } from "firebase/database"; // ✅ import push
+import { auth } from "../FirebaseConfig";
 
 const ESP_IP = "http://192.168.8.12/data"; // Replace with your ESP32's IP address
+
 
 const Home = () => {
   const [sensorData, setSensorData] = useState(null);
@@ -11,17 +14,33 @@ const Home = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(ESP_IP);
-        const data = await response.json();
-        setSensorData(data);
+        const fetchedData = await response.json();
+        setSensorData(fetchedData);
         setLoading(false);
+
+        // ✅ Push to Firebase
+        const db = getDatabase();
+        const userId = auth.currentUser?.uid;
+
+        if (userId && fetchedData) {
+          const userRef = ref(db, "sensorReadings/" + userId);
+          push(userRef, {
+            ...fetchedData,
+            timestamp: Date.now(),
+          });
+        }
+
       } catch (error) {
         console.error("Error fetching sensor data:", error);
         setLoading(false);
       }
     };
+	
+	 
 
-    fetchData();
-    const interval = setInterval(fetchData, 2000); // Fetch data every 5 seconds
+
+    fetchData(); // ✅ call function
+    const interval = setInterval(fetchData, 2000); // Fetch data every 2 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -56,7 +75,7 @@ const Home = () => {
 
       <View style={[styles.widget, { backgroundColor: "#Fcccae" }]}>
         <Text style={styles.label}>Core Temperature (DS18B20):</Text>
-        <Text style={styles.value}>{"35"} °C</Text>
+        <Text style={styles.value}>{"35"} °C</Text> {/* You can change this later */}
       </View>
 
       <View style={[styles.widget, { backgroundColor: "#E3D1FF" }]}>
@@ -86,8 +105,8 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 10,
     marginBottom: 10,
-    elevation: 3, // Shadow effect for Android
-    shadowColor: "#000", // Shadow effect for iOS
+    elevation: 3,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,

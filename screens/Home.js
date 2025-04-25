@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
-import { getDatabase, ref, push } from "firebase/database"; // ✅ import push
-import { auth } from "../FirebaseConfig";
-
-const ESP_IP = "http://192.168.8.12/data"; // Replace with your ESP32's IP address
+import { getDatabase, ref, onValue, query, limitToLast } from "firebase/database";
+import { auth, database } from "../FirebaseConfig";
 
 
 const Home = () => {
@@ -11,38 +9,22 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(ESP_IP);
-        const fetchedData = await response.json();
-        setSensorData(fetchedData);
-        setLoading(false);
+    const userId = auth.currentUser?.uid;
+    console.log("User ID:", userId);okay
+    if (!userId) return;
 
-        // ✅ Push to Firebase
-        const db = getDatabase();
-        const userId = auth.currentUser?.uid;
+    const userRef = ref(database, "esp32/sensor_data");
 
-        if (userId && fetchedData) {
-          const userRef = ref(db, "sensorReadings/" + userId);
-          push(userRef, {
-            ...fetchedData,
-            timestamp: Date.now(),
-          });
-        }
-
-      } catch (error) {
-        console.error("Error fetching sensor data:", error);
-        setLoading(false);
+    const unsubscribe = onValue(userRef, (snapshot) => {
+      const data = snapshot.val();
+      console.log("Fetched data:", data);
+      if (data) {
+      setSensorData(data);
+      setLoading(false);
       }
-    };
-	
-	 
+    });
 
-
-    fetchData(); // ✅ call function
-    const interval = setInterval(fetchData, 2000); // Fetch data every 2 seconds
-
-    return () => clearInterval(interval);
+    return () => unsubscribe();
   }, []);
 
   if (loading) {
@@ -60,12 +42,12 @@ const Home = () => {
 
       <View style={[styles.widget, { backgroundColor: "#FF6985" }]}>
         <Text style={styles.label}>Heart Rate:</Text>
-        <Text style={styles.value}>{sensorData?.bpm ?? "N/A"} BPM</Text>
+        <Text style={styles.value}>{sensorData?.heart_rate ?? "N/A"} BPM</Text>
       </View>
 
       <View style={[styles.widget, { backgroundColor: "#f7ac6a" }]}>
         <Text style={styles.label}>Temperature (DHT11):</Text>
-        <Text style={styles.value}>{sensorData?.temperature ?? "N/A"} °C</Text>
+        <Text style={styles.value}>{sensorData?.temperature_dht ?? "N/A"} °C</Text>
       </View>
 
       <View style={[styles.widget, { backgroundColor: "#C1e1ff" }]}>
@@ -75,14 +57,13 @@ const Home = () => {
 
       <View style={[styles.widget, { backgroundColor: "#Fcccae" }]}>
         <Text style={styles.label}>Core Temperature (DS18B20):</Text>
-        <Text style={styles.value}>{"35"} °C</Text> {/* You can change this later */}
+        <Text style={styles.value}>{sensorData?.core_temp ?? "N/A"} °C</Text>
       </View>
 
       <View style={[styles.widget, { backgroundColor: "#E3D1FF" }]}>
         <Text style={styles.label}>UV Index:</Text>
         <Text style={styles.value}>{sensorData?.uv_index ?? "N/A"}</Text>
       </View>
-
     </ScrollView>
   );
 };

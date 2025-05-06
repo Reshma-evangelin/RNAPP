@@ -8,11 +8,12 @@ import {
   Alert,
   Image,
 } from "react-native";
+import { getDatabase, ref, set } from "firebase/database"; 
 import * as Google from "expo-auth-session/providers/google";
 import { auth } from "../FirebaseConfig";
 import { signInWithCredential, GoogleAuthProvider } from "firebase/auth";
 import { signInWithEmailAndPassword } from "firebase/auth";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function LoginScreen({ navigation }) {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
@@ -22,26 +23,47 @@ export default function LoginScreen({ navigation }) {
   });
 
   useEffect(() => {
-    if (response?.type === "success") {
-      const { id_token } = response.params;
-      const credential = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(auth, credential)
-        .then(() => {
-          navigation.navigate("bmi");
-        })
-        .catch((error) => Alert.alert("Login Error", error.message));
-    }
-  }, [response]);
+  if (response?.type === "success") {
+    const { id_token } = response.params;
+    const credential = GoogleAuthProvider.credential(id_token);
+    signInWithCredential(auth, credential)
+      .catch((error) => Alert.alert("Login Error", error.message));
+  }
+}, [response]);
 
   const handleLogin = () => {
-    if (!userId || !password) {
-      Alert.alert("Please enter email and password");
-      return;
+  if (!userId || !password) {
+    Alert.alert("Please enter email and password");
+    return;
+  }
+  signInWithEmailAndPassword(auth, userId, password)
+  .then(async (userCredential) => {
+
+    const user = userCredential.user; 
+      const uid = user.uid;             
+
+    await AsyncStorage.setItem("isLoggedIn", "true");
+    await AsyncStorage.setItem("uid", uid); // ✅ Store UID also
+
+     // 🔥 Save activeUserId in Firebase
+     const db = getDatabase();
+     await set(ref(db, "activeUserId"), uid);
+
+    console.log("Login successful!");
+      console.log("User UID:", uid);
+
+     // 👇 Check if user BMI exists
+     const storedBmi = await AsyncStorage.getItem("userBmi");
+
+     if (storedBmi) {
+      navigation.replace("Home"); // BMI exists → go to Home
+    } else {
+      navigation.replace("bmi");  // No BMI → go to BMI page
     }
-    signInWithEmailAndPassword(auth, userId, password)
-    .then(() => {
-      navigation.navigate("bmi");
-    })
+
+    // navigation.replace("Home"); // ✅ Save login status
+    console.log("Login successful!");
+  })
     .catch((error) => Alert.alert("Login Failed", error.message));
 };
   return (
